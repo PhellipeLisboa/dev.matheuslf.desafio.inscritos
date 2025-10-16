@@ -3,7 +3,9 @@ package dev.matheuslf.desafio.inscritos.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_projects")
@@ -28,6 +30,9 @@ public class Project {
 
     @Temporal(TemporalType.DATE)
     private Date endDate;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> tasks = new ArrayList<>();
 
     public Long getId() {
         return id;
