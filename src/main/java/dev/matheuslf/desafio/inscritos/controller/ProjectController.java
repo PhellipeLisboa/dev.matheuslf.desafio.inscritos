@@ -3,6 +3,7 @@ package dev.matheuslf.desafio.inscritos.controller;
 import dev.matheuslf.desafio.inscritos.dto.ProjectRequestDto;
 import dev.matheuslf.desafio.inscritos.dto.ProjectResponseDto;
 import dev.matheuslf.desafio.inscritos.service.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<ProjectResponseDto> createProject(@RequestBody ProjectRequestDto dto) {
+    public ResponseEntity<ProjectResponseDto> createProject(@Valid @RequestBody ProjectRequestDto dto) {
 
         ProjectResponseDto createdProject = projectService.createProject(dto);
 

@@ -26,7 +26,6 @@ public class Project {
     private Long id;
 
     @Column(nullable = false, length = 100)
-    @Size(min = 3, max = 100)
     private String name;
 
     private String description;

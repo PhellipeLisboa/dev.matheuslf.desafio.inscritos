@@ -6,6 +6,8 @@ import dev.matheuslf.desafio.inscritos.dto.TaskStatusUpdateDto;
 import dev.matheuslf.desafio.inscritos.entity.Priority;
 import dev.matheuslf.desafio.inscritos.entity.Status;
 import dev.matheuslf.desafio.inscritos.service.TaskService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +25,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<TaskResponseDto> createTask(@RequestBody TaskRequestDto dto) {
+    public ResponseEntity<TaskResponseDto> createTask(@Valid @RequestBody TaskRequestDto dto) {
 
         TaskResponseDto createdTask = taskService.createTask(dto);
 
@@ -36,7 +38,8 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<List<TaskResponseDto>> listTasks(@RequestParam(required = false) Status status,
                                                            @RequestParam(required = false) Priority priority,
-                                                           @RequestParam(required = false) Long projectId
+                                                           @RequestParam(required = false) @Positive(message = "O id " +
+                                                                   "do projeto deve ser maior que zero.") Long projectId
     ) {
 
         List<TaskResponseDto> result = taskService.listTasks(status, priority, projectId);
@@ -46,7 +49,8 @@ public class TaskController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<TaskResponseDto> updateTaskStatus(@PathVariable Long id, @RequestBody TaskStatusUpdateDto dto) {
+    public ResponseEntity<TaskResponseDto> updateTaskStatus(@PathVariable @Positive(message = "O id da tarefa deve " +
+            "ser maior que zero.") Long id, @Valid @RequestBody TaskStatusUpdateDto dto) {
 
         TaskResponseDto updatedTask = taskService.updateTaskStatus(id, dto);
 
@@ -55,7 +59,8 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(@PathVariable @Positive(message = "O id da tarefa deve ser maior que zero.")
+                                               Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
