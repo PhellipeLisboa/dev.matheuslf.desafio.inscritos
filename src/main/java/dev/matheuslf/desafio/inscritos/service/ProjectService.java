@@ -24,6 +24,10 @@ public class ProjectService {
             throw new IllegalArgumentException("O nome do projeto é obrigatório!");
         }
 
+        if (dto.endDate().before(dto.startDate())) {
+            throw new IllegalArgumentException("A data de encerramento do projeto não pode ser anterior à data de início.");
+        }
+
         Project project = ProjectMapper.toEntity(dto);
 
         Project projectCreated = projectRepository.save(project);

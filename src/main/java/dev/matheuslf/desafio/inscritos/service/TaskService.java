@@ -13,7 +13,6 @@ import dev.matheuslf.desafio.inscritos.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -28,13 +27,14 @@ public class TaskService {
 
     public TaskResponseDto createTask(TaskRequestDto dto) {
 
-        if (dto.title() == null || dto.title().isBlank()) {
-            throw new IllegalArgumentException("O título da tarefa é obrigatória!");
-        }
-
         Project project = projectRepository.findById(dto.projectId()).orElseThrow(
                 () -> new RuntimeException("Projeto com id " + dto.projectId() + " não encontrado.")
         );
+
+        if (dto.dueDate().before(project.getStartDate())  || dto.dueDate().after(project.getEndDate())) {
+            throw new IllegalArgumentException("A data limite da tarefa não pode ser anterior ao início ou posterior" +
+                    " ao término do projeto");
+        }
 
         Task task = TaskMapper.toEntity(dto, project);
 
