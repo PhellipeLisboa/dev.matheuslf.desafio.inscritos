@@ -25,4 +25,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             @Param("projectId") Long projectId
             );
 
+    boolean existsByTitleAndProjectId(String title, Long projectId);
+
 }

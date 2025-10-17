@@ -7,6 +7,9 @@ import dev.matheuslf.desafio.inscritos.entity.Priority;
 import dev.matheuslf.desafio.inscritos.entity.Project;
 import dev.matheuslf.desafio.inscritos.entity.Status;
 import dev.matheuslf.desafio.inscritos.entity.Task;
+import dev.matheuslf.desafio.inscritos.exception.ResourceNotFoundException;
+import dev.matheuslf.desafio.inscritos.exception.InvalidTaskDueDateException;
+import dev.matheuslf.desafio.inscritos.exception.TaskAlreadyExistsException;
 import dev.matheuslf.desafio.inscritos.mapper.TaskMapper;
 import dev.matheuslf.desafio.inscritos.repository.ProjectRepository;
 import dev.matheuslf.desafio.inscritos.repository.TaskRepository;
@@ -28,12 +31,15 @@ public class TaskService {
     public TaskResponseDto createTask(TaskRequestDto dto) {
 
         Project project = projectRepository.findById(dto.projectId()).orElseThrow(
-                () -> new RuntimeException("Projeto com id " + dto.projectId() + " não encontrado.")
+                () -> new ResourceNotFoundException("Projeto", dto.projectId())
         );
 
-        if (dto.dueDate().before(project.getStartDate())  || dto.dueDate().after(project.getEndDate())) {
-            throw new IllegalArgumentException("A data limite da tarefa não pode ser anterior ao início ou posterior" +
-                    " ao término do projeto");
+        if (taskRepository.existsByTitleAndProjectId(dto.title(), dto.projectId())) {
+            throw new TaskAlreadyExistsException(dto.title());
+        }
+
+        if (dto.dueDate().before(project.getStartDate()) || dto.dueDate().after(project.getEndDate())) {
+            throw new InvalidTaskDueDateException(project.getStartDate(), project.getEndDate());
         }
 
         Task task = TaskMapper.toEntity(dto, project);
@@ -56,10 +62,10 @@ public class TaskService {
     public TaskResponseDto updateTaskStatus(Long id, TaskStatusUpdateDto dto) {
 
         Task taskEntity = taskRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Tarefa com id " + id + " não encontrada.")
+                () -> new ResourceNotFoundException("Tarefa", id)
         );
 
-        if (dto.status() != null) taskEntity.setStatus(dto.status());
+        taskEntity.setStatus(dto.status());
 
         Task updatedTask = taskRepository.save(taskEntity);
 
@@ -70,7 +76,7 @@ public class TaskService {
     public void deleteTask(Long id) {
 
         if (!taskRepository.existsById(id)) {
-            throw new RuntimeException("Tarefa com id " + id + " não encontrada.");
+            throw new ResourceNotFoundException("Tarefa", id);
         }
 
         taskRepository.deleteById(id);

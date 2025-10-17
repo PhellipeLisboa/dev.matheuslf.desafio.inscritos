@@ -3,6 +3,8 @@ package dev.matheuslf.desafio.inscritos.service;
 import dev.matheuslf.desafio.inscritos.dto.ProjectRequestDto;
 import dev.matheuslf.desafio.inscritos.dto.ProjectResponseDto;
 import dev.matheuslf.desafio.inscritos.entity.Project;
+import dev.matheuslf.desafio.inscritos.exception.ProjectAlreadyExistsException;
+import dev.matheuslf.desafio.inscritos.exception.ProjectInvalidDateRangeException;
 import dev.matheuslf.desafio.inscritos.mapper.ProjectMapper;
 import dev.matheuslf.desafio.inscritos.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
@@ -20,12 +22,12 @@ public class ProjectService {
 
     public ProjectResponseDto createProject(ProjectRequestDto dto) {
 
-        if (dto.name() == null || dto.name().isBlank()) {
-            throw new IllegalArgumentException("O nome do projeto é obrigatório!");
+        if (dto.endDate().before(dto.startDate())) {
+            throw new ProjectInvalidDateRangeException();
         }
 
-        if (dto.endDate().before(dto.startDate())) {
-            throw new IllegalArgumentException("A data de encerramento do projeto não pode ser anterior à data de início.");
+        if (projectRepository.existsByName(dto.name())) {
+            throw new ProjectAlreadyExistsException(dto.name());
         }
 
         Project project = ProjectMapper.toEntity(dto);
